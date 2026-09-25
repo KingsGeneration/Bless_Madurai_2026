@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kings Generation — Bless Madurai Visitor Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0a0e1a;--panel:#11162a;--panel-soft:#161d36;--bdr:rgba(255,255,255,0.07);--text:#eef1fb;--dim:#8891ab;--faint:#5c6584;--gold:#f0b429;--maroon:#e8607a;--green:#3ecf8e;--blue:#5ab3f0;--amber:#f59e0b;}
+body.light-mode{--bg:#f0f2f8;--panel:#ffffff;--panel-soft:#e8eaf2;--bdr:rgba(0,0,0,0.1);--text:#1a1f36;--dim:#5a6080;--faint:#9099b8;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:radial-gradient(ellipse at 15% -10%,rgba(155,135,245,0.08),transparent 50%),radial-gradient(ellipse at 90% 10%,rgba(240,180,41,0.06),transparent 50%),var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+
+/* THEME TOGGLE */
+.theme-toggle{position:fixed;bottom:20px;right:20px;z-index:9000;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--panel);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:all .2s;}
+.theme-toggle:hover{transform:scale(1.1);border-color:var(--gold);}
+
+/* LOGIN */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.login-card{background:var(--panel);border:1px solid var(--bdr);border-radius:24px;padding:36px 28px;width:100%;max-width:340px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,0.5);}
+.login-logo{font-family:'Lora',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.login-logo span{color:var(--gold);}
+.login-sub{font-size:12px;color:var(--faint);letter-spacing:0.12em;text-transform:uppercase;font-weight:600;margin-bottom:28px;}
+.login-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--bdr);background:transparent;transition:all .15s;}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold);}
+.pin-dot.filled.green{background:var(--green);border-color:var(--green);}
+.pin-dot.error{background:var(--maroon);border-color:var(--maroon);}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.key{height:56px;border-radius:14px;border:1.5px solid var(--bdr);background:rgba(255,255,255,0.03);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;cursor:pointer;transition:background .12s,transform .08s;display:flex;align-items:center;justify-content:center;}
+.key:hover{background:rgba(255,255,255,0.07);}
+.key:active{transform:scale(0.94);background:rgba(240,180,41,0.15);}
+.key.key-del{font-size:16px;color:var(--dim);}
+.key.key-blank{border:none;background:transparent;cursor:default;}
+.login-err{font-size:13px;color:var(--maroon);min-height:18px;margin-top:-8px;margin-bottom:4px;}
+
+/* VOLUNTEER SCREEN */
+.vol-screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.vol-card{background:var(--panel);border:1px solid var(--bdr);border-radius:24px;padding:32px 24px;width:100%;max-width:360px;box-shadow:0 30px 60px rgba(0,0,0,0.5);}
+.vol-title{font-family:'Lora',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;text-align:center;}
+.vol-sub{font-size:12px;color:var(--faint);text-align:center;margin-bottom:22px;}
+.vol-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.vol-btn{width:100%;padding:13px 16px;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:12px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.vol-btn:hover{background:rgba(240,180,41,0.08);border-color:rgba(240,180,41,0.3);color:var(--gold);}
+.vol-btn.selected{background:rgba(240,180,41,0.12);border-color:rgba(240,180,41,0.4);color:var(--gold);}
+.vol-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f0b429,#d97706);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#1a1304;flex-shrink:0;}
+.vol-btn.others-btn{border-style:dashed;color:var(--dim);}
+.vol-btn.others-btn:hover,.vol-btn.others-btn.selected{color:var(--blue);border-color:rgba(90,179,240,0.4);background:rgba(90,179,240,0.06);}
+.vol-btn.others-btn .vol-avatar{background:rgba(90,179,240,0.15);color:var(--blue);}
+.vol-other-wrap{display:none;margin-bottom:12px;}
+.vol-other-wrap.show{display:block;}
+.vol-other-input{width:100%;height:44px;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:11px;padding:0 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s;}
+.vol-other-input:focus{border-color:var(--gold);}
+.vol-other-input::placeholder{color:var(--faint);}
+.vol-confirm-btn{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(180deg,#f4c247,var(--gold));color:#1a1304;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:4px;}
+.vol-err{font-size:12px;color:var(--maroon);margin-bottom:8px;display:none;}
+.vol-err.show{display:block;}
+
+/* APP */
+.app-screen{display:none;}
+.wrap{min-height:100vh;padding:28px 20px 48px;}
+.masthead{text-align:center;margin-bottom:20px;position:relative;}
+.avatar-wrap{position:absolute;right:0;top:0;}
+.avatar-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0b429,#d97706);border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:#1a1304;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(240,180,41,0.3);transition:transform .15s;}
+.avatar-btn:hover{transform:scale(1.08);}
+.avatar-menu{display:none;position:absolute;right:0;top:44px;background:#1a2140;border:1.5px solid var(--bdr);border-radius:14px;min-width:200px;box-shadow:0 16px 40px rgba(0,0,0,0.5);z-index:999;overflow:hidden;}
+.avatar-menu.open{display:block;}
+.avatar-menu-header{padding:13px 16px 11px;border-bottom:1px solid var(--bdr);text-align:center;}
+.avatar-menu-name{font-size:13.5px;font-weight:700;color:var(--text);}
+.avatar-menu-role{font-size:11px;color:var(--blue);margin-top:2px;font-weight:600;}
+.avatar-menu-item{display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;transition:background .12s;}
+.avatar-menu-item:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+.avatar-menu-item.danger{color:var(--maroon);}
+.avatar-menu-item.danger:hover{background:rgba(232,96,122,0.08);}
+.church-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:8px;}
+.event-title{font-family:'Lora',serif;font-size:clamp(28px,7vw,38px);font-weight:700;line-height:1.1;}
+.event-title span{color:var(--gold);}
+.pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 14px;border-radius:999px;background:var(--panel-soft);border:1px solid var(--bdr);font-size:11.5px;font-weight:600;color:var(--gold);}
+.tabs{display:flex;margin-bottom:20px;background:var(--panel);border:1px solid var(--bdr);border-radius:13px;padding:4px;}
+.tab{flex:1;padding:9px 10px;text-align:center;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;border-radius:10px;transition:all .15s;}
+.tab.active{background:rgba(240,180,41,0.12);color:var(--gold);border:1px solid rgba(240,180,41,0.25);}
+.card{background:var(--panel);border:1px solid var(--bdr);border-radius:20px;padding:24px 22px;box-shadow:0 20px 50px rgba(0,0,0,0.45);}
+.card-title{font-family:'Lora',serif;font-size:19px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.edit-badge{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;background:rgba(240,180,41,0.15);color:var(--gold);border:1px solid rgba(240,180,41,0.3);border-radius:6px;padding:2px 8px;}
+.card-sub{font-size:12.5px;color:var(--dim);margin-bottom:22px;line-height:1.5;}
+.field{margin-bottom:16px;}
+.field>label{display:block;font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);margin-bottom:7px;}
+.field>label .req{color:var(--maroon);margin-left:2px;}
+input.inp,select.inp{display:block;width:100%;height:44px;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:11px;padding:0 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s,background .15s;}
+input.inp::placeholder{color:var(--faint);}
+input.inp:focus,select.inp:focus{border-color:var(--gold);background:rgba(255,255,255,0.05);}
+select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%23f0b429' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+select.inp option{background:#161d36;color:#eef1fb;}
+.field.invalid input.inp,.field.invalid select.inp{border-color:var(--maroon)!important;}
+.other-church-wrap{margin-top:8px;display:none;}
+.other-church-wrap.show{display:block;}
+.name-tbl{width:100%;border-collapse:separate;border-spacing:8px 0;}
+.name-tbl td.td-title{width:100px;}
+select#f-title{width:100px;height:44px;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:11px;padding:0 24px 0 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23f0b429' stroke-width='1.3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s;}
+select#f-title:focus{border-color:var(--gold);}
+select#f-title option{background:#161d36;color:#eef1fb;}
+input#f-name{height:44px;width:100%;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:11px;padding:0 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s;}
+input#f-name::placeholder{color:var(--faint);}
+input#f-name:focus{border-color:var(--gold);}
+.field.invalid select#f-title,.field.invalid input#f-name{border-color:var(--maroon);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.err{font-size:11.5px;color:var(--maroon);margin-top:5px;display:none;}
+.err.show{display:block;}
+.dup-banner{display:none;background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.4);border-radius:11px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--amber);line-height:1.5;}
+.dup-banner.show{display:block;}
+.dup-banner strong{font-weight:700;display:block;margin-bottom:3px;}
+.dup-banner .dup-edit{color:var(--blue);cursor:pointer;font-weight:600;text-decoration:underline;}
+.phone-hint{display:none;font-size:11.5px;color:var(--amber);margin-top:4px;}
+.phone-hint.show{display:block;}
+.combo-wrap{position:relative;}
+.combo-input{display:block;width:100%;height:44px;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:11px;padding:0 36px 0 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s;}
+.combo-input::placeholder{color:var(--faint);}
+.combo-input:focus{border-color:var(--gold);}
+.combo-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--gold);}
+.combo-dropdown{display:none;position:absolute;left:0;right:0;top:48px;z-index:999;background:#1a2140;border:1.5px solid var(--gold);border-radius:11px;max-height:200px;overflow-y:auto;box-shadow:0 12px 30px rgba(0,0,0,0.5);}
+.combo-dropdown.open{display:block;}
+.combo-item{padding:10px 14px;font-size:14px;cursor:pointer;color:var(--text);transition:background .1s;}
+.combo-item:hover{background:rgba(240,180,41,0.15);color:var(--gold);}
+.combo-item.add-new{color:var(--blue);font-style:italic;border-top:1px solid var(--bdr);}
+.btn-submit{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(180deg,#f4c247,var(--gold));color:#1a1304;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14.5px;cursor:pointer;box-shadow:0 8px 22px rgba(240,180,41,0.22);transition:transform .12s;margin-top:4px;}
+.btn-submit:hover{transform:translateY(-1px);}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.btn-submit.edit-mode{background:linear-gradient(180deg,#52e0a0,#2eb87a);color:#092918;box-shadow:0 8px 22px rgba(46,184,122,0.28);}
+.cancel-edit-btn{display:none;width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(180deg,#f07a8a,#d94060);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14.5px;cursor:pointer;box-shadow:0 8px 22px rgba(217,64,96,0.28);transition:transform .12s;margin-top:8px;}
+.cancel-edit-btn:hover{transform:translateY(-1px);}
+.cancel-edit-btn.show{display:block;}
+.toast{display:none;background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.3);border-radius:11px;padding:11px 15px;margin-bottom:16px;font-size:13px;color:var(--green);align-items:center;gap:10px;}
+.toast.show{display:flex;}
+.toast.error-toast{background:rgba(232,96,122,0.1);border-color:rgba(232,96,122,0.3);color:var(--maroon);}
+
+/* Loading overlay */
+.loading-bar{display:none;text-align:center;padding:40px 20px;color:var(--faint);font-size:14px;}
+.loading-bar.show{display:block;}
+.spinner{width:28px;height:28px;border:3px solid var(--bdr);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.stat-card{background:var(--panel);border:1px solid var(--bdr);border-radius:14px;padding:14px 12px;text-align:center;position:relative;overflow:hidden;}
+.stat-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--blue));}
+.stat-card:nth-child(2)::after{background:linear-gradient(90deg,var(--blue),var(--green));}
+.stat-card:nth-child(3)::after{background:linear-gradient(90deg,var(--green),var(--gold));}
+.stat-num{font-family:'Lora',serif;font-size:26px;font-weight:700;color:var(--gold);}
+.stat-lbl{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-top:3px;}
+.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.list-title{font-family:'Lora',serif;font-size:18px;font-weight:700;}
+.count-badge{background:rgba(240,180,41,0.15);color:var(--gold);border:1px solid rgba(240,180,41,0.3);border-radius:999px;font-size:11.5px;padding:2px 10px;font-weight:700;}
+.search-box{position:relative;margin-bottom:14px;}
+.search-box svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--faint);}
+.search-inp{width:100%;background:rgba(255,255,255,0.03);border:1.5px solid var(--bdr);border-radius:11px;padding:11px 13px 11px 38px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
+.search-inp:focus{border-color:var(--gold);}
+.search-inp::placeholder{color:var(--faint);}
+.csv-btn{background:rgba(255,255,255,0.04);border:1.4px solid var(--bdr);color:var(--gold);border-radius:10px;font-size:12.5px;font-weight:700;padding:7px 14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.csv-btn:hover{background:rgba(240,180,41,0.1);}
+.empty{text-align:center;padding:48px 20px;color:var(--faint);font-size:14px;}
+.entry-card{background:var(--panel-soft);border:1px solid var(--bdr);border-radius:14px;margin-bottom:8px;overflow:hidden;}
+.entry-card.expanded{border-color:rgba(240,180,41,0.3);}
+.entry-summary{display:flex;align-items:center;padding:11px 14px;gap:10px;}
+.summary-info{flex:1;min-width:0;cursor:pointer;}
+.entry-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.entry-sub{font-size:11.5px;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.summary-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.count-chip{background:rgba(240,180,41,0.12);color:var(--gold);border:1px solid rgba(240,180,41,0.25);border-radius:999px;font-size:11px;font-weight:700;padding:2px 8px;white-space:nowrap;}
+.icon-btn{width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .15s;}
+.icon-edit{background:rgba(90,179,240,0.1);color:var(--blue);}
+.icon-edit:hover{background:rgba(90,179,240,0.25);}
+.icon-del{background:rgba(232,96,122,0.1);color:var(--maroon);}
+.icon-del:hover{background:rgba(232,96,122,0.25);}
+.icon-expand{background:rgba(255,255,255,0.04);color:var(--faint);font-size:11px;transition:transform .2s;}
+.entry-card.expanded .icon-expand{color:var(--gold);transform:rotate(180deg);}
+.entry-detail-panel{display:none;padding:0 14px 12px;border-top:1px solid var(--bdr);}
+.entry-card.expanded .entry-detail-panel{display:block;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;}
+.detail-item{background:rgba(255,255,255,0.02);border-radius:8px;padding:7px 9px;}
+.detail-label{font-size:9px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--faint);margin-bottom:2px;}
+.detail-value{font-size:12.5px;color:var(--text);font-weight:500;}
+.detail-item.full{grid-column:1/-1;}
+.entry-time-note{font-size:10.5px;color:var(--faint);margin-top:8px;}
+
+/* Change PIN Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#11162a;border:1.5px solid var(--gold);border-radius:20px;padding:30px 24px;width:100%;max-width:320px;text-align:center;}
+.modal-title{font-family:'Lora',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--faint);margin-bottom:20px;}
+.modal-err{font-size:12.5px;color:var(--maroon);min-height:16px;margin-bottom:6px;}
+.modal-cancel{width:100%;padding:11px;border:1.5px solid var(--bdr);border-radius:11px;background:transparent;color:var(--dim);font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><span>Kings Generation</span></div>
+    <div class="login-sub">Madurai</div>
+    <div class="login-label">Enter Admin PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+      <div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div>
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <div class="keypad">
+      <button class="key" onclick="pinKey('1')">1</button><button class="key" onclick="pinKey('2')">2</button><button class="key" onclick="pinKey('3')">3</button>
+      <button class="key" onclick="pinKey('4')">4</button><button class="key" onclick="pinKey('5')">5</button><button class="key" onclick="pinKey('6')">6</button>
+      <button class="key" onclick="pinKey('7')">7</button><button class="key" onclick="pinKey('8')">8</button><button class="key" onclick="pinKey('9')">9</button>
+      <button class="key key-blank"></button><button class="key" onclick="pinKey('0')">0</button><button class="key key-del" onclick="pinDel()">⌫</button>
+    </div>
+  </div>
+</div>
+
+<!-- VOLUNTEER SELECT -->
+<div class="vol-screen" id="vol-screen">
+  <div class="vol-card">
+    <div class="vol-title">Who's registering?</div>
+    <div class="vol-sub">Select your name to continue</div>
+    <div class="vol-err" id="vol-err">Please select or enter your name</div>
+    <div class="vol-list" id="vol-list"></div>
+    <div class="vol-other-wrap" id="vol-other-wrap">
+      <input class="vol-other-input" type="text" id="vol-other-input" placeholder="Enter your name…"/>
+    </div>
+    <button class="vol-confirm-btn" id="vol-confirm-btn" onclick="confirmVolunteer()" style="display:none">Continue →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-screen" id="app-screen">
+  <div class="wrap">
+    <div class="masthead">
+      <div class="avatar-wrap">
+        <button class="avatar-btn" id="avatar-btn" onclick="toggleAvatarMenu()"></button>
+        <div class="avatar-menu" id="avatar-menu">
+          <div class="avatar-menu-header">
+            <div class="avatar-menu-name" id="avatar-menu-name"></div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:2px;">
+              <div class="avatar-menu-role" id="role-label">Registration Team</div>
+              <span id="superadmin-badge" style="display:none;background:rgba(240,180,41,0.15);color:var(--gold);border:1px solid rgba(240,180,41,0.3);border-radius:5px;font-size:9.5px;font-weight:800;padding:1px 6px;letter-spacing:0.04em;">SUPER ADMIN</span>
+            </div>
+          </div>
+          <div class="avatar-menu-item" id="menu-change-pin" onclick="handleChangePinClick();closeAvatarMenu()">⚙ Change PIN</div>
+          <div class="avatar-menu-item danger" onclick="logout()">⏻ Logout</div>
+        </div>
+      </div>
+      <div class="event-title">Kings Generation - <span>Bless Madurai</span></div>
+      <div class="pill">📍 Sat, 26 Sep 2026 · 5 PM – 8 PM</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('entry')">✦ New Entry</div>
+      <div class="tab" onclick="switchTab('list')">≡ Visitor Log</div>
+    </div>
+
+    <!-- NEW ENTRY TAB -->
+    <div id="tab-entry">
+      <div class="toast" id="toast">✓ <span id="toast-msg"></span></div>
+      <div class="dup-banner" id="dup-banner"><strong>⚠ Duplicate entry detected!</strong><span id="dup-msg"></span></div>
+      <div class="card">
+        <div class="card-title"><span id="form-title-text">Visitor Details</span><span class="edit-badge" id="edit-badge" style="display:none">Editing</span></div>
+        <div class="card-sub" id="form-sub">Fill in the mandatory fields and tap Save.</div>
+        <div class="row2">
+          <div class="field" id="fw-name">
+            <label>Full name <span class="req">*</span></label>
+            <input type="text" id="f-name" class="inp" placeholder="Enter full name"/>
+            <div class="err" id="e-name">Enter the visitor's name</div>
+          </div>
+          <div class="field" id="fw-gender">
+            <label>Gender <span class="req">*</span></label>
+            <div style="display:flex;gap:16px;align-items:center;padding:10px 0;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;">
+                <input type="radio" name="gender" id="g-male" value="M" style="accent-color:var(--gold);width:18px;height:18px;cursor:pointer;"/> Male
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;">
+                <input type="radio" name="gender" id="g-female" value="F" style="accent-color:var(--gold);width:18px;height:18px;cursor:pointer;"/> Female
+              </label>
+            </div>
+            <div class="err" id="e-gender" style="display:none;">Select gender</div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field" id="fw-phone"><label>Phone <span class="req">*</span></label><input class="inp" type="tel" id="f-phone" placeholder="9XXXXXXXXX" maxlength="10" oninput="checkDuplicate()"/><div class="phone-hint" id="phone-hint">⚠ Already registered</div><div class="err" id="e-phone">Valid 10-digit number</div></div>
+          <div class="field" id="fw-count"><label>Members <span class="req">*</span></label><input class="inp" type="number" id="f-count" placeholder="1" min="1" max="200"/><div class="err" id="e-count">Min 1</div></div>
+        </div>
+        <div class="field" id="fw-church">
+          <label>Church <span class="req">*</span></label>
+          <select class="inp" id="f-church" onchange="onChurchChange()">
+            <option value="">— Select —</option>
+            <option value="Kings Generation">Kings Generation</option>
+            <option value="Levi International Church">Levi International Church</option>
+            <option value="Other Church">Other Church</option>
+            <option value="Non-Believers">Non-Believers</option>
+          </select>
+          <div class="other-church-wrap" id="other-church-wrap">
+            <input class="inp" type="text" id="f-church-other" placeholder="Enter church name"/>
+            <div class="err" id="e-church-other">Enter the church name</div>
+          </div>
+          <div class="err" id="e-church">Select a church</div>
+        </div>
+        <div class="field" id="fw-city">
+          <label>City <span class="req">*</span></label>
+          <div class="combo-wrap">
+            <input class="combo-input" type="text" id="f-city" placeholder="Search or type city…" autocomplete="off" oninput="filterCities()" onfocus="openDropdown()" onblur="blurCombo()"/>
+            <svg class="combo-arrow" width="10" height="7" viewBox="0 0 10 7"><path d="M1 1l4 4 4-4" stroke="#f0b429" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+            <div class="combo-dropdown" id="city-dropdown"></div>
+          </div>
+          <div class="err" id="e-city">Enter or select a city</div>
+        </div>
+        <div class="field" id="fw-area"><label>Area / Locality <span class="req">*</span></label><input class="inp" type="text" id="f-area" placeholder="e.g. Anna Nagar, Alagar Koil Road"/><div class="err" id="e-area">Enter area / locality</div></div>
+        <div class="field"><label>Notes <span style="font-size:10px;color:var(--faint);font-weight:500;letter-spacing:0;text-transform:none">(optional)</span></label><input class="inp" type="text" id="f-notes"/></div>
+        <button class="btn-submit" id="btn-submit" onclick="saveEntry()">Save Entry</button>
+        <button class="cancel-edit-btn" id="cancel-edit-btn" onclick="cancelEdit()">✕ Cancel Edit</button>
+      </div>
+    </div>
+
+    <!-- VISITOR LOG TAB -->
+    <div id="tab-list" style="display:none">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="s-entries">0</div><div class="stat-lbl">Entries</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-members">0</div><div class="stat-lbl">Members</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-churches">0</div><div class="stat-lbl">Churches</div></div>
+      </div>
+      <div class="list-header">
+        <div class="list-title">Visitor log <span class="count-badge" id="log-count">0</span></div>
+        <div style="display:flex;gap:6px;">
+          <button class="csv-btn" onclick="exportCSV()" title="Export from Firestore">↓ CSV</button>
+          <button class="csv-btn" onclick="backupExportCSV()" title="Export local backup" style="color:var(--blue);border-color:rgba(90,179,240,0.3);">🛡 Backup</button>
+        </div>
+      </div>
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input class="search-inp" type="text" id="search-all" placeholder="Search name, church, city or mobile…" oninput="renderList()"/>
+      </div>
+      <div class="loading-bar" id="list-loading"><div class="spinner"></div>Loading from Firestore…</div>
+      <div id="entries-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Change PIN Modal -->
+<div class="modal-overlay" id="pin-modal">
+  <div class="modal">
+    <div class="modal-title">Change PIN</div>
+    <div class="modal-sub" id="pin-modal-sub">Step 1: Enter your current PIN</div>
+    <div class="pin-dots" style="justify-content:center;margin-bottom:16px;">
+      <div class="pin-dot" id="md0"></div><div class="pin-dot" id="md1"></div>
+      <div class="pin-dot" id="md2"></div><div class="pin-dot" id="md3"></div>
+      <div class="pin-dot" id="md4"></div><div class="pin-dot" id="md5"></div>
+    </div>
+    <div class="modal-err" id="pin-modal-err"></div>
+    <div class="keypad">
+      <button class="key" onclick="mPinKey('1')">1</button><button class="key" onclick="mPinKey('2')">2</button><button class="key" onclick="mPinKey('3')">3</button>
+      <button class="key" onclick="mPinKey('4')">4</button><button class="key" onclick="mPinKey('5')">5</button><button class="key" onclick="mPinKey('6')">6</button>
+      <button class="key" onclick="mPinKey('7')">7</button><button class="key" onclick="mPinKey('8')">8</button><button class="key" onclick="mPinKey('9')">9</button>
+      <button class="key key-blank"></button><button class="key" onclick="mPinKey('0')">0</button><button class="key key-del" onclick="mPinDel()">⌫</button>
+    </div>
+    <button class="modal-cancel" onclick="closeChangePinModal()">Cancel</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
+  doc, query, orderBy, serverTimestamp, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ── Firebase config (same project as Bible Quiz) ──
+const firebaseConfig = {
+  apiKey: "AIzaSyArqMypulGACF_-AABuuYU76hQjnHhx3Yw",
+  authDomain: "kings-generation.firebaseapp.com",
+  projectId: "kings-generation",
+  storageBucket: "kings-generation.firebasestorage.app",
+  messagingSenderId: "991996056117",
+  appId: "1:991996056117:web:d8fec00714e836c805577c"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const COLLECTION = "kgMaduraiVisitors";
+
+// ── expose all functions to global scope (inline onclick) ──
+let entries = [];  // local mirror of Firestore docs
+
+// ── PIN ──
+const PIN_TEAM       = '262026';   // Registration team PIN
+const PIN_SUPERADMIN = '260926';   // Super admin PIN
+let currentRole = '';              // 'team' | 'superadmin'
+let loginInput = '';
+window.pinKey = k => { if(loginInput.length>=6)return; loginInput+=k; updateLoginDots(false); if(loginInput.length===6)setTimeout(checkLoginPin,120); };
+window.pinDel = () => { loginInput=loginInput.slice(0,-1); updateLoginDots(false); document.getElementById('login-err').textContent=''; };
+function updateLoginDots(err){ for(let i=0;i<6;i++){const d=document.getElementById('d'+i);d.className='pin-dot'+(i<loginInput.length?' filled':'')+(err?' error':'');} }
+function checkLoginPin(){
+  const superPin = localStorage.getItem('kg_madurai_superadmin_pin') || PIN_SUPERADMIN;
+  if(loginInput===PIN_TEAM){
+    currentRole='team';
+    document.getElementById('login-screen').style.display='none';
+    showVolunteerScreen();
+  } else if(loginInput===superPin){
+    currentRole='superadmin';
+    document.getElementById('login-screen').style.display='none';
+    showVolunteerScreen();
+  } else {
+    updateLoginDots(true);
+    document.getElementById('login-err').textContent='Incorrect PIN. Try again.';
+    setTimeout(()=>{loginInput='';updateLoginDots(false);document.getElementById('login-err').textContent='';},1000);
+  }
+}
+window.logout = () => {
+  loginInput=''; updateLoginDots(false); operatorName=''; selectedVol='';
+  document.getElementById('vol-other-wrap').classList.remove('show');
+  document.getElementById('vol-confirm-btn').style.display='none';
+  document.getElementById('vol-other-input').value='';
+  document.getElementById('vol-err').classList.remove('show');
+  document.querySelectorAll('.vol-btn').forEach(b=>b.classList.remove('selected'));
+  closeAvatarMenu();
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('vol-screen').style.display='none';
+  document.getElementById('app-screen').style.display='none';
+  if(unsubscribe){ unsubscribe(); unsubscribe=null; }
+};
+
+// ── Avatar menu ──
+window.toggleAvatarMenu = () => document.getElementById('avatar-menu').classList.toggle('open');
+window.closeAvatarMenu  = () => document.getElementById('avatar-menu').classList.remove('open');
+document.addEventListener('click', e => { if(!e.target.closest('.avatar-wrap')) closeAvatarMenu(); });
+
+// ── Volunteer select ──
+const TEAM_VOLUNTEERS       = ['Sis. Angel','Sis. Christy','Sis. Gowri','Sis. Reshma','Sis. Shivani','Sis. Vidhya'];
+const SUPERADMIN_VOLUNTEERS = ['Jeeva','Joshua'];
+let operatorName='', selectedVol='';
+function getInitial(name){ if(name==='Others')return '+'; const p=name.split(' '); return (p[p.length-1]||name)[0].toUpperCase(); }
+function showVolunteerScreen(){ document.getElementById('vol-screen').style.display='flex'; buildVolList(); }
+function buildVolList(){
+  const list=document.getElementById('vol-list'); list.innerHTML='';
+  const names = currentRole==='superadmin' ? SUPERADMIN_VOLUNTEERS : TEAM_VOLUNTEERS;
+  names.forEach(name=>{ const btn=document.createElement('button'); btn.className='vol-btn'; btn.innerHTML=`<span class="vol-avatar">${getInitial(name)}</span>${name}`; btn.onclick=()=>selectVol(name,btn); list.appendChild(btn); });
+  // Others only for team, not super admin
+  if(currentRole!=='superadmin'){
+    const ob=document.createElement('button'); ob.className='vol-btn others-btn'; ob.innerHTML=`<span class="vol-avatar">+</span>Others`; ob.onclick=()=>selectVol('Others',ob); list.appendChild(ob);
+  }
+  // If super admin has only one name, auto-select it
+  if(currentRole==='superadmin' && names.length===1){
+    const btn=list.querySelector('.vol-btn');
+    if(btn) setTimeout(()=>btn.click(), 50);
+  }
+}
+function selectVol(name,btn){ document.querySelectorAll('.vol-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedVol=name; if(name==='Others'){document.getElementById('vol-other-wrap').classList.add('show');document.getElementById('vol-other-input').focus();}else{document.getElementById('vol-other-wrap').classList.remove('show');document.getElementById('vol-other-input').value='';} document.getElementById('vol-confirm-btn').style.display='block'; document.getElementById('vol-err').classList.remove('show'); }
+window.selectVol = selectVol;
+window.confirmVolunteer = () => {
+  if(!selectedVol){document.getElementById('vol-err').classList.add('show');return;}
+  if(selectedVol==='Others'){const c=document.getElementById('vol-other-input').value.trim();if(!c){document.getElementById('vol-err').classList.add('show');return;}operatorName=c;}
+  else operatorName=selectedVol;
+  document.getElementById('vol-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('avatar-btn').textContent=getInitial(operatorName);
+  document.getElementById('avatar-menu-name').textContent=operatorName;
+  // Super admin badge for Jeeva & Joshua
+  const isSuperAdmin = ['jeeva','joshua'].includes(operatorName.toLowerCase().trim());
+  document.getElementById('superadmin-badge').style.display = isSuperAdmin ? 'inline-block' : 'none';
+  document.getElementById('role-label').style.display = isSuperAdmin ? 'none' : 'block';
+  document.getElementById('f-city').value='Madurai'; citySelected='Madurai';
+  // Start Firestore real-time listener
+  startListener();
+};
+
+// ── Change PIN ──
+let cpStep='current', cpInput='', cpNewPin='';
+window.handleChangePinClick = () => {
+  const isSuperAdmin = ['jeeva','joshua'].includes(operatorName.toLowerCase().trim());
+  if(isSuperAdmin){ window.openChangePinModal(); }
+  else{ document.getElementById('no-access-modal').classList.add('open'); }
+};
+window.openChangePinModal = () => {
+  cpStep='current';cpInput='';cpNewPin='';updateModalDots(false);
+  document.getElementById('pin-modal-sub').textContent='Step 1: Enter your current Super Admin PIN';
+  document.getElementById('pin-modal-err').textContent='';
+  document.getElementById('pin-modal').classList.add('open');
+};
+window.closeChangePinModal = () => document.getElementById('pin-modal').classList.remove('open');
+window.mPinKey = k => { if(cpInput.length>=6)return; cpInput+=k; updateModalDots(false); if(cpInput.length===6)setTimeout(window.handleCpStep,120); };
+window.mPinDel = () => { cpInput=cpInput.slice(0,-1); updateModalDots(false); document.getElementById('pin-modal-err').textContent=''; };
+function updateModalDots(err,green){ for(let i=0;i<6;i++){const d=document.getElementById('md'+i);d.className='pin-dot'+(i<cpInput.length?' filled'+(green?' green':''):'')+(err?' error':'');} }
+window.handleCpStep = function handleCpStep(){
+  const currentPin = localStorage.getItem('kg_madurai_superadmin_pin') || PIN_SUPERADMIN;
+  if(cpStep==='current'){
+    if(cpInput===currentPin){cpStep='new';cpInput='';updateModalDots(false);document.getElementById('pin-modal-sub').textContent='Step 2: Enter new Super Admin PIN';document.getElementById('pin-modal-err').textContent='';}
+    else{updateModalDots(true);document.getElementById('pin-modal-err').textContent='Incorrect Super Admin PIN.';setTimeout(()=>{cpInput='';updateModalDots(false);document.getElementById('pin-modal-err').textContent='';},1000);}
+  }
+  else if(cpStep==='new'){cpNewPin=cpInput;cpStep='confirm';cpInput='';updateModalDots(false);document.getElementById('pin-modal-sub').textContent='Step 3: Confirm your new Super Admin PIN';document.getElementById('pin-modal-err').textContent='';}
+  else if(cpStep==='confirm'){
+    if(cpInput===cpNewPin){localStorage.setItem('kg_madurai_superadmin_pin',cpInput);updateModalDots(false,true);document.getElementById('pin-modal-err').textContent='';document.getElementById('pin-modal-sub').textContent='✓ Super Admin PIN changed!';setTimeout(window.closeChangePinModal,1200);}
+    else{updateModalDots(true);document.getElementById('pin-modal-err').textContent="PINs don't match. Try again.";setTimeout(()=>{cpStep='new';cpInput='';cpNewPin='';updateModalDots(false);document.getElementById('pin-modal-sub').textContent='Step 2: Enter new Super Admin PIN';document.getElementById('pin-modal-err').textContent='';},1200);}
+  }
+}
+
+// ── Firestore real-time listener ──
+let unsubscribe = null;
+function startListener(){
+  document.getElementById('list-loading').classList.add('show');
+  const q = query(collection(db, COLLECTION), orderBy('createdAt','desc'));
+  unsubscribe = onSnapshot(q, snap => {
+    entries = snap.docs.map(d => ({ firestoreId: d.id, ...d.data(), createdAt: d.data().createdAt?.toDate?.() || null }));
+    document.getElementById('list-loading').classList.remove('show');
+    syncBackupFromSnapshot(entries); // keep local backup in sync
+    updateStats();
+    renderList();
+  }, err => {
+    console.error(err);
+    document.getElementById('list-loading').classList.remove('show');
+    showToast('Could not load data — check Firestore rules.', true);
+  });
+}
+
+// ── City combobox ──
+const TN_CITIES=["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kallakurichi","Kanchipuram","Kanniyakumari","Karur","Krishnagiri","Madurai","Mayiladuthurai","Nagapattinam","Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram","Ranipet","Salem","Sivaganga","Tenkasi","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupathur","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar"];
+let citySelected="Madurai";
+function renderDropdown(items,typed){const dd=document.getElementById('city-dropdown');let html=items.map(c=>`<div class="combo-item" onmousedown="selectCity('${c}')">${c}</div>`).join('');if(typed&&!TN_CITIES.some(c=>c.toLowerCase()===typed.toLowerCase()))html+=`<div class="combo-item add-new" onmousedown="selectCity('${typed}')">+ Save "${typed}" as city</div>`;if(!html)html=`<div class="combo-item" style="color:var(--faint);cursor:default">Type to add custom city</div>`;dd.innerHTML=html;}
+window.openDropdown = () => {const t=document.getElementById('f-city').value.trim();renderDropdown(t?TN_CITIES.filter(c=>c.toLowerCase().includes(t.toLowerCase())):TN_CITIES,t);document.getElementById('city-dropdown').classList.add('open');};
+window.filterCities = () => {citySelected='';const t=document.getElementById('f-city').value.trim();renderDropdown(TN_CITIES.filter(c=>c.toLowerCase().includes(t.toLowerCase())),t);document.getElementById('city-dropdown').classList.add('open');};
+window.selectCity = n => {document.getElementById('f-city').value=n;citySelected=n;document.getElementById('city-dropdown').classList.remove('open');document.getElementById('fw-city').classList.remove('invalid');document.getElementById('e-city').classList.remove('show');};
+window.blurCombo = () => {setTimeout(()=>{const t=document.getElementById('f-city').value.trim();if(t&&!citySelected)citySelected=t;document.getElementById('city-dropdown').classList.remove('open');},150);};
+
+// ── Duplicate check ──
+function findDuplicate(phone){ if(!phone||phone.length<10)return null; return entries.find(e=>e.phone===phone&&e.firestoreId!==editingId)||null; }
+window.checkDuplicate = () => {
+  const phone=document.getElementById('f-phone').value.trim(), dup=findDuplicate(phone);
+  const hint=document.getElementById('phone-hint'), banner=document.getElementById('dup-banner');
+  if(dup){hint.classList.add('show');document.getElementById('f-phone').style.borderColor='var(--amber)';banner.classList.add('show');document.getElementById('dup-msg').innerHTML=`<b>${dup.name}</b> (${dup.church} · ${dup.city}) registered at ${dup.createdAt?dup.createdAt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—'}. <span class="dup-edit" onclick="openEdit('${dup.firestoreId}')">Edit that entry →</span>`;}
+  else{hint.classList.remove('show');document.getElementById('f-phone').style.borderColor='';banner.classList.remove('show');}
+};
+
+// ── Form helpers ──
+window.onChurchChange = () => {const v=document.getElementById('f-church').value;document.getElementById('other-church-wrap').classList.toggle('show',v==='Other Church');if(v!=='Other Church')document.getElementById('f-church-other').value='';document.getElementById('e-church-other').classList.remove('show');};
+window.switchTab = t => {
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='entry'&&i===0)||(t==='list'&&i===1)));
+  document.getElementById('tab-entry').style.display=t==='entry'?'':'none';
+  document.getElementById('tab-list').style.display=t==='list'?'':'none';
+  if(t==='list'){renderList();updateStats();}
+};
+function setErr(k,s){const e=document.getElementById('e-'+k),w=document.getElementById('fw-'+k);if(e)e.classList.toggle('show',s);if(w)w.classList.toggle('invalid',s);}
+function resetForm(){
+  ['name','phone','count','area','notes'].forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.value='';setErr(f,false);});
+  document.getElementById('f-church').value='';document.getElementById('other-church-wrap').classList.remove('show');document.getElementById('f-church-other').value='';setErr('church',false);document.getElementById('e-church-other').classList.remove('show');
+  document.querySelectorAll('input[name="gender"]').forEach(r=>r.checked=false);
+  document.getElementById('f-city').value='Madurai';citySelected='Madurai';
+  setErr('city',false);document.getElementById('e-gender').style.display='none';
+  document.getElementById('phone-hint').classList.remove('show');document.getElementById('f-phone').style.borderColor='';document.getElementById('dup-banner').classList.remove('show');
+}
+
+let editingId = null;
+function setEditMode(on){
+  editingId=on?editingId:null;
+  document.getElementById('form-title-text').textContent=on?'Edit Entry':'Visitor Details';
+  document.getElementById('edit-badge').style.display=on?'':'none';
+  document.getElementById('form-sub').textContent=on?'Update the details and tap Save Changes.':'Fill in the mandatory fields and tap Save.';
+  const btn=document.getElementById('btn-submit');btn.textContent=on?'✓ Save Changes':'Save Entry';btn.classList.toggle('edit-mode',on);
+  document.getElementById('cancel-edit-btn').classList.toggle('show',on);
+}
+window.openEdit = id => {
+  const e=entries.find(x=>x.firestoreId===id);if(!e)return;
+  editingId=id;
+  document.getElementById('f-name').value=e.name||'';
+  document.querySelectorAll('input[name="gender"]').forEach(r=>r.checked=(r.value===e.gender));
+  document.getElementById('f-phone').value=e.phone||'';document.getElementById('f-count').value=e.count||1;
+  document.getElementById('f-city').value=e.city||'';citySelected=e.city||'';
+  document.getElementById('f-area').value=e.area||'';document.getElementById('f-notes').value=e.notes||'';
+  const churchVal=e.churchType==='Non-Believers'?'Non-Believers':(e.church==='Kings Generation'?'Kings Generation':(e.church?'Other Church':''));
+  document.getElementById('f-church').value=churchVal;
+  if(churchVal==='Other Church'){document.getElementById('other-church-wrap').classList.add('show');document.getElementById('f-church-other').value=e.church||'';}
+  else{document.getElementById('other-church-wrap').classList.remove('show');document.getElementById('f-church-other').value='';}
+  document.getElementById('dup-banner').classList.remove('show');document.getElementById('phone-hint').classList.remove('show');document.getElementById('f-phone').style.borderColor='';
+  setEditMode(true);switchTab('entry');window.scrollTo(0,0);
+};
+window.cancelEdit = () => { editingId=null; resetForm(); setEditMode(false); };
+
+// ── LOCAL BACKUP ──
+const BACKUP_KEY = "kg_madurai_backup";
+
+function backupLoad(){
+  try{ return JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); }
+  catch(e){ return []; }
+}
+function backupSave(list){
+  try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(list)); } catch(e){ console.warn('Backup save failed',e); }
+}
+function backupAdd(entry){
+  // entry = plain object (no Firestore types)
+  const list = backupLoad();
+  // avoid duplicates by phone
+  const idx = list.findIndex(x=>x.phone===entry.phone && x.firestoreId===entry.firestoreId);
+  if(idx>=0) list[idx]={...list[idx],...entry};
+  else list.unshift(entry);
+  backupSave(list);
+}
+function backupUpdate(firestoreId, patch){
+  const list = backupLoad();
+  const idx = list.findIndex(x=>x.firestoreId===firestoreId);
+  if(idx>=0){ list[idx]={...list[idx],...patch}; backupSave(list); }
+}
+function backupDelete(firestoreId){
+  const list = backupLoad().filter(x=>x.firestoreId!==firestoreId);
+  backupSave(list);
+}
+function backupExportCSV(){
+  const list = backupLoad();
+  if(!list.length){ alert('No backup data found in local storage.'); return; }
+  const rows=[['#','Name','Phone','Church','Church Type','City','Area','Members','Registered By','Notes','Time','Firestore ID'],
+    ...list.map((e,i)=>[i+1,e.name,e.phone,e.church,e.churchType||'',e.city||'',e.area||'',e.count,e.registeredBy||'',e.notes||'',e.time||'',e.firestoreId||''])];
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`kg_madurai_BACKUP_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+window.backupExportCSV = backupExportCSV;
+
+// Keep backup in sync whenever Firestore snapshot updates
+function syncBackupFromSnapshot(entries){
+  // Merge snapshot into backup (don't delete — backup is additive for safety)
+  const list = backupLoad();
+  entries.forEach(e=>{
+    const idx=list.findIndex(x=>x.firestoreId===e.firestoreId);
+    const flat={ firestoreId:e.firestoreId, name:e.name, phone:e.phone, count:e.count, church:e.church, churchType:e.churchType, city:e.city, area:e.area, notes:e.notes, registeredBy:e.registeredBy||'', time:e.createdAt?e.createdAt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'', date:e.createdAt?e.createdAt.toLocaleDateString('en-IN'):'' };
+    if(idx>=0) list[idx]={...list[idx],...flat};
+    else list.unshift(flat);
+  });
+  backupSave(list);
+}
+
+// ── Save / Update ──
+window.saveEntry = async () => {
+  const name=document.getElementById('f-name').value.trim(),
+    phone=document.getElementById('f-phone').value.trim(),count=parseInt(document.getElementById('f-count').value),
+    gender=document.querySelector('input[name="gender"]:checked')?.value||'',
+    city=citySelected||document.getElementById('f-city').value.trim(),area=document.getElementById('f-area').value.trim(),
+    notes=document.getElementById('f-notes').value.trim(),
+    churchSel=document.getElementById('f-church').value,
+    churchOther=document.getElementById('f-church-other').value.trim(),
+    church=churchSel==='Other Church'?churchOther:churchSel,
+    churchType=churchSel==='Non-Believers'?'Non-Believers':(churchSel==='Kings Generation'?'Believers':'Believers');
+  let ok=true;
+  setErr('name',!name);if(!name)ok=false;
+  setErr('phone',!/^\d{10}$/.test(phone));if(!/^\d{10}$/.test(phone))ok=false;
+  setErr('count',!count||count<1);if(!count||count<1)ok=false;
+  setErr('church',!churchSel);if(!churchSel)ok=false;
+  if(churchSel==='Other Church'&&!churchOther){document.getElementById('e-church-other').classList.add('show');ok=false;}else{document.getElementById('e-church-other').classList.remove('show');}
+  const ge=document.getElementById('e-gender');
+  if(!gender){ge.style.display='block';ok=false;}else ge.style.display='none';
+  setErr('city',!city);if(!city)ok=false;
+  setErr('area',!area);if(!area)ok=false;
+  if(!ok)return;
+  if(!editingId&&findDuplicate(phone)){document.getElementById('dup-banner').classList.add('show');document.getElementById('f-phone').style.borderColor='var(--amber)';return;}
+
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent=editingId?'Saving…':'Saving…';
+
+  try{
+    if(editingId){
+      await updateDoc(doc(db,COLLECTION,editingId),{name,phone,count,gender,church,churchType,city,area,notes,updatedAt:serverTimestamp()});
+      backupUpdate(editingId,{name,phone,count,gender,church,churchType,city,area,notes});
+      showToast(`${name} updated!`);
+    } else {
+      const ref = await addDoc(collection(db,COLLECTION),{name,phone,count,gender,church,churchType,city,area,notes,registeredBy:operatorName,createdAt:serverTimestamp()});
+      backupAdd({ firestoreId:ref.id, name, phone, count, gender, church, churchType, city, area, notes, registeredBy:operatorName, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}), date:new Date().toLocaleDateString('en-IN') });
+      showToast(`${name} — ${count} member${count>1?'s':''} added!`);
+    }
+    resetForm();setEditMode(false);
+  } catch(err){
+    console.error(err);showToast('Could not save — check connection.',true);
+  } finally {
+    btn.disabled=false;btn.textContent=editingId?'✓ Save Changes':'Save Entry';
+  }
+};
+
+// ── Delete ──
+window.delEntry = async id => {
+  const e=entries.find(x=>x.firestoreId===id);
+  if(!confirm(`Delete entry for "${e?.name||'this visitor'}"? This cannot be undone.`))return;
+  try{
+    await deleteDoc(doc(db,COLLECTION,id));
+    backupDelete(id); // remove from active backup (already in deleted log below)
+  } catch(err){
+    console.error(err);showToast('Could not delete — check connection.',true);
+  }
+};
+
+// ── Toast ──
+function showToast(msg,isError=false){
+  const t=document.getElementById('toast');
+  t.className='toast'+(isError?' error-toast':'');
+  t.innerHTML=(isError?'⚠ ':'✓ ')+'<span>'+msg+'</span>';
+  t.style.display='flex';
+  setTimeout(()=>t.style.display='none',3500);
+}
+
+// ── Render list ──
+window.toggleCard = id => {
+  const c=document.getElementById('card-'+id);
+  if(c)c.classList.toggle('expanded');
+};
+window.renderList = () => {
+  const q=(document.getElementById('search-all').value||'').toLowerCase().trim();
+  const filtered=entries.filter(e=>!q||[e.name,e.church,e.city,e.area,e.phone].some(v=>(v||'').toLowerCase().includes(q)));
+  document.getElementById('log-count').textContent=filtered.length;
+  const el=document.getElementById('entries-list');
+  if(!filtered.length){el.innerHTML='<div class="empty">🕊 No entries yet.</div>';return;}
+  el.innerHTML=filtered.map(e=>{
+    const nb=e.churchType==='Non-Believers';
+    const time=e.createdAt?e.createdAt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—';
+    return `<div class="entry-card" id="card-${e.firestoreId}">
+      <div class="entry-summary">
+        <div class="summary-info" onclick="toggleCard('${e.firestoreId}')">
+          <div class="entry-name">${e.name||'—'}</div>
+          <div class="entry-sub">${e.gender||'—'} · ${e.city||'—'}</div>
+        </div>
+        <div class="summary-right">
+          <span class="count-chip">${e.count} member${e.count>1?'s':''}</span>
+          <button class="icon-btn icon-edit" onclick="openEdit('${e.firestoreId}')" title="Edit">✎</button>
+          <button class="icon-btn icon-del" onclick="delEntry('${e.firestoreId}')" title="Delete">✕</button>
+          <button class="icon-btn icon-expand" onclick="toggleCard('${e.firestoreId}')" title="Details">▾</button>
+        </div>
+      </div>
+      <div class="entry-detail-panel">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">📞 ${e.phone||'—'}</div></div>
+          <div class="detail-item"><div class="detail-label">Members</div><div class="detail-value">${e.count}</div></div>
+          <div class="detail-item"><div class="detail-label">Gender</div><div class="detail-value">${e.gender==='M'?'Male':e.gender==='F'?'Female':'—'}</div></div>
+          <div class="detail-item"><div class="detail-label">City</div><div class="detail-value">${e.city||'—'}</div></div>
+          <div class="detail-item full"><div class="detail-label">Area</div><div class="detail-value">${e.area||'—'}</div></div>
+          ${e.registeredBy?`<div class="detail-item full"><div class="detail-label">Registered By</div><div class="detail-value">👤 ${e.registeredBy}</div></div>`:''}
+          ${e.notes?`<div class="detail-item full"><div class="detail-label">Notes</div><div class="detail-value">${e.notes}</div></div>`:''}
+        </div>
+        <div class="entry-time-note">Registered at ${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+// ── Stats ──
+function updateStats(){
+  document.getElementById('s-entries').textContent=entries.length;
+  document.getElementById('s-members').textContent=entries.reduce((a,e)=>a+(e.count||0),0);
+  document.getElementById('s-churches').textContent=new Set(entries.filter(e=>e.churchType!=='Non-Believers').map(e=>(e.church||'').toLowerCase().trim())).size;
+}
+
+// ── CSV export ──
+window.exportCSV = () => {
+  if(!entries.length)return;
+  const rows=[['#','Name','Phone','Church','Church Type','City','Area','Members','Registered By','Notes','Time'],
+    ...entries.map((e,i)=>[i+1,e.name,e.phone,e.church,e.churchType||'',e.city||'',e.area||'',e.count,e.registeredBy||'',e.notes||'',e.createdAt?e.createdAt.toLocaleString('en-IN'):''])];
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`kg_madurai_visitors_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+};
+</script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+<script>
+(function(){
+  const saved = localStorage.getItem('kg_theme');
+  if(saved==='light'){document.body.classList.add('light-mode');document.getElementById('theme-toggle').textContent='☀️';}
+})();
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light-mode');
+  document.getElementById('theme-toggle').textContent=isLight?'☀️':'🌙';
+  localStorage.setItem('kg_theme',isLight?'light':'dark');
+}
+</script>
+<!-- No Access Modal -->
+<div class="modal-overlay" id="no-access-modal">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:38px;margin-bottom:12px;">🔐</div>
+    <div class="modal-title">Restricted Access</div>
+    <div style="font-size:13px;color:var(--dim);margin:10px 0 20px;line-height:1.6;">
+      Only the <span style="color:var(--gold);font-weight:700;">Super Admin</span> can modify the PIN.<br/>
+      Reach out to <span style="color:var(--text);font-weight:600;">Jeeva / Joshua</span> to change it.
+    </div>
+    <button class="modal-cancel" onclick="document.getElementById('no-access-modal').classList.remove('open')" style="border-color:rgba(240,180,41,0.3);color:var(--gold);">Got it</button>
+  </div>
+</div>
+
+</body>
+</html>
