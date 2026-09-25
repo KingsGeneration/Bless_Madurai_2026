@@ -60,9 +60,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:radial-gradient(ellip
 /* APP */
 .app-screen{display:none;}
 .wrap{min-height:100vh;padding:28px 20px 48px;}
-.masthead{text-align:center;margin-bottom:20px;position:relative;padding-top:48px;}
-.avatar-wrap{position:absolute;right:0;top:0;}
-.avatar-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0b429,#d97706);border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:#1a1304;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(240,180,41,0.3);transition:transform .15s;}
+.masthead{text-align:center;margin-bottom:20px;position:relative;padding-top:16px;}
+.avatar-wrap{position:absolute;right:0;top:16px;}
+.avatar-btn{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f0b429,#d97706);border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:#1a1304;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(240,180,41,0.4);transition:transform .15s;}
 .avatar-btn:hover{transform:scale(1.08);}
 .avatar-menu{display:none;position:absolute;right:0;top:44px;background:#1a2140;border:1.5px solid var(--bdr);border-radius:14px;min-width:200px;box-shadow:0 16px 40px rgba(0,0,0,0.5);z-index:999;overflow:hidden;}
 .avatar-menu.open{display:block;}
@@ -73,8 +73,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:radial-gradient(ellip
 .avatar-menu-item:hover{background:rgba(255,255,255,0.05);color:var(--text);}
 .avatar-menu-item.danger{color:var(--maroon);}
 .avatar-menu-item.danger:hover{background:rgba(232,96,122,0.08);}
-.church-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:8px;}
-.event-title{font-family:'Lora',serif;font-size:clamp(28px,7vw,38px);font-weight:700;line-height:1.1;}
+.church-label{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:12px;}
+.event-title{font-family:'Lora',serif;font-size:clamp(36px,9vw,52px);font-weight:700;line-height:1.1;padding-right:60px;}
 .event-title span{color:var(--gold);}
 .pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 14px;border-radius:999px;background:var(--panel-soft);border:1px solid var(--bdr);font-size:11.5px;font-weight:600;color:var(--gold);}
 .tabs{display:flex;margin-bottom:20px;background:var(--panel);border:1px solid var(--bdr);border-radius:13px;padding:4px;}
@@ -247,7 +247,8 @@ input#f-name:focus{border-color:var(--gold);}
           <div class="avatar-menu-item danger" onclick="logout()">⏻ Logout</div>
         </div>
       </div>
-      <div class="event-title">Kings Generation - <span>Bless Madurai</span></div>
+      <div class="church-label">Kings Generation Church</div>
+      <div class="event-title">Bless <span>Madurai</span></div>
       <div class="pill">📍 Sat, 26 Sep 2026 · 5 PM – 8 PM</div>
     </div>
 
