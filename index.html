@@ -190,6 +190,45 @@ input#f-name:focus{border-color:var(--gold);}
 .modal-sub{font-size:12px;color:var(--faint);margin-bottom:20px;}
 .modal-err{font-size:12.5px;color:var(--maroon);min-height:16px;margin-bottom:6px;}
 .modal-cancel{width:100%;padding:11px;border:1.5px solid var(--bdr);border-radius:11px;background:transparent;color:var(--dim);font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;margin-top:10px;}
+
+/* ── DASHBOARD TAB ── */
+.dash-kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.dash-kpi{background:var(--panel);border:1px solid var(--bdr);border-radius:14px;padding:14px 16px;}
+.dash-kpi-val{font-family:'Lora',serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1;}
+.dash-kpi-lbl{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-top:4px;}
+.dash-section{background:var(--panel);border:1px solid var(--bdr);border-radius:16px;padding:16px;margin-bottom:14px;}
+.dash-section-title{font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;}
+.dash-area-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;}
+.dash-area-name{flex:1;color:var(--text);}
+.dash-area-bar-wrap{width:70px;background:rgba(255,255,255,0.08);border-radius:3px;height:5px;}
+.dash-area-bar-fill{height:5px;border-radius:3px;background:var(--blue);}
+.dash-area-count{font-size:11px;color:var(--dim);min-width:24px;text-align:right;}
+.dash-city-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11.5px;margin:3px;background:rgba(90,179,240,0.1);color:var(--blue);border:1px solid rgba(90,179,240,0.25);}
+.dash-tag-nb{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:11px;margin:3px;background:rgba(235,104,52,0.15);color:#fb8a5a;border:1px solid rgba(235,104,52,0.25);}
+.dash-tag-kg{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:11px;margin:3px;background:rgba(62,207,142,0.15);color:var(--green);border:1px solid rgba(62,207,142,0.25);}
+.dash-vol-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.dash-vol-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.dash-vol-name{flex:1;font-size:12.5px;color:var(--text);}
+.dash-vol-count{font-size:11.5px;color:var(--dim);}
+.dash-export-btn{display:flex;align-items:center;gap:6px;background:rgba(57,135,229,0.15);color:var(--blue);border:1px solid rgba(57,135,229,0.3);border-radius:9px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:16px;width:100%;justify-content:center;}
+.dash-export-btn:hover{background:rgba(57,135,229,0.25);}
+@media print{
+  @page{size:A4;margin:12mm 10mm;}
+  .login-screen,.vol-screen,.theme-toggle,.tabs,.avatar-wrap,.modal-overlay{display:none!important;}
+  .app-screen,.wrap{background:#fff!important;color:#111!important;}
+  #tab-entry,#tab-list{display:none!important;}
+  #tab-dash{display:block!important;}
+  .dash-export-btn{display:none!important;}
+  .dash-kpi,.dash-section{background:#f4f6fb!important;border:1px solid #dde1ec!important;}
+  .dash-kpi-val{color:#1a3a6b!important;}
+  .dash-kpi-lbl,.dash-section-title,.dash-area-count,.dash-vol-count{color:#555!important;}
+  .dash-area-name,.dash-vol-name{color:#111!important;}
+  .dash-area-bar-wrap{background:#dde1ec!important;}
+  .dash-city-pill{background:#e8edf8!important;color:#2d5faa!important;border-color:#b8cce8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dash-tag-nb{background:#fde8df!important;color:#b94a1a!important;border-color:#f0b8a0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dash-tag-kg{background:#d9f5ec!important;color:#147a56!important;border-color:#8dd8c1!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dash-section{page-break-inside:avoid;}
+}
 </style>
 </head>
 <body>
@@ -255,6 +294,7 @@ input#f-name:focus{border-color:var(--gold);}
     <div class="tabs">
       <div class="tab active" onclick="switchTab('entry')">✦ New Entry</div>
       <div class="tab" onclick="switchTab('list')">≡ Visitor Log</div>
+      <div class="tab" onclick="switchTab('dash')">◎ Dashboard</div>
     </div>
 
     <!-- NEW ENTRY TAB -->
@@ -339,6 +379,68 @@ input#f-name:focus{border-color:var(--gold);}
       <div class="loading-bar" id="list-loading"><div class="spinner"></div>Loading from Firestore…</div>
       <div id="entries-list"></div>
     </div>
+
+    <!-- DASHBOARD TAB -->
+    <div id="tab-dash" style="display:none">
+      <button class="dash-export-btn" onclick="window.print()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export PDF
+      </button>
+
+      <!-- KPI cards -->
+      <div class="dash-kpi-row">
+        <div class="dash-kpi"><div class="dash-kpi-val" id="d-families">0</div><div class="dash-kpi-lbl">Families registered</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="d-headcount">0</div><div class="dash-kpi-lbl">Total headcount</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="d-ooc">0</div><div class="dash-kpi-lbl">Out-of-city families</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="d-nb">0</div><div class="dash-kpi-lbl">Non-believer families</div></div>
+      </div>
+
+      <!-- Registrations by hour -->
+      <div class="dash-section">
+        <div class="dash-section-title">Registrations by hour</div>
+        <div style="position:relative;height:160px;"><canvas id="d-hourChart"></canvas></div>
+      </div>
+
+      <!-- Volunteer breakdown -->
+      <div class="dash-section">
+        <div class="dash-section-title">Volunteer registrations</div>
+        <div id="d-vol-legend" style="margin-bottom:10px;"></div>
+        <div style="position:relative;height:140px;"><canvas id="d-volChart"></canvas></div>
+      </div>
+
+      <!-- Top areas -->
+      <div class="dash-section">
+        <div class="dash-section-title">Top areas by headcount (Madurai)</div>
+        <div id="d-areas"></div>
+      </div>
+
+      <!-- Family size distribution -->
+      <div class="dash-section">
+        <div class="dash-section-title">Family size distribution</div>
+        <div style="position:relative;height:160px;"><canvas id="d-sizeChart"></canvas></div>
+      </div>
+
+      <!-- Non-believers -->
+      <div class="dash-section">
+        <div class="dash-section-title" id="d-nb-title">Non-believers</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:8px;">Visitors who listed no church affiliation.</div>
+        <div id="d-nb-areas"></div>
+      </div>
+
+      <!-- KG visitors from other branches -->
+      <div class="dash-section">
+        <div class="dash-section-title" id="d-kg-title">KG visitors from other branches</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:8px;">Kings Generation members who travelled in from other cities.</div>
+        <div id="d-kg-areas"></div>
+      </div>
+
+      <!-- Out-of-city -->
+      <div class="dash-section">
+        <div class="dash-section-title" id="d-ooc-title">Out-of-city visitors</div>
+        <div id="d-ooc-cities"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -385,6 +487,7 @@ const COLLECTION = "kgMaduraiVisitors";
 
 // ── expose all functions to global scope (inline onclick) ──
 let entries = [];  // local mirror of Firestore docs
+window._entries = entries;
 
 // ── PIN ──
 const PIN_TEAM       = '262026';   // Registration team PIN
@@ -505,10 +608,12 @@ function startListener(){
   const q = query(collection(db, COLLECTION), orderBy('createdAt','desc'));
   unsubscribe = onSnapshot(q, snap => {
     entries = snap.docs.map(d => ({ firestoreId: d.id, ...d.data(), createdAt: d.data().createdAt?.toDate?.() || null }));
+    window._dashEntries = entries;
     document.getElementById('list-loading').classList.remove('show');
     syncBackupFromSnapshot(entries); // keep local backup in sync
     updateStats();
     renderList();
+    if(window.notifyDashboard) window.notifyDashboard(entries);
   }, err => {
     console.error(err);
     document.getElementById('list-loading').classList.remove('show');
@@ -537,10 +642,20 @@ window.checkDuplicate = () => {
 // ── Form helpers ──
 window.onChurchChange = () => {const v=document.getElementById('f-church').value;document.getElementById('other-church-wrap').classList.toggle('show',v==='Other Church');if(v!=='Other Church')document.getElementById('f-church-other').value='';document.getElementById('e-church-other').classList.remove('show');};
 window.switchTab = t => {
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='entry'&&i===0)||(t==='list'&&i===1)));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='entry'&&i===0)||(t==='list'&&i===1)||(t==='dash'&&i===2)));
   document.getElementById('tab-entry').style.display=t==='entry'?'':'none';
   document.getElementById('tab-list').style.display=t==='list'?'':'none';
+  document.getElementById('tab-dash').style.display=t==='dash'?'':'none';
   if(t==='list'){renderList();updateStats();}
+  if(t==='dash'){
+    window._dashEntries=entries;
+    if(window.renderDashboard){
+      window.renderDashboard();
+    } else {
+      // Chart.js CDN still loading — retry until ready
+      const wait=setInterval(()=>{if(window.renderDashboard){clearInterval(wait);window.renderDashboard();}},100);
+    }
+  }
 };
 function setErr(k,s){const e=document.getElementById('e-'+k),w=document.getElementById('fw-'+k);if(e)e.classList.toggle('show',s);if(w)w.classList.toggle('invalid',s);}
 function resetForm(){
@@ -760,6 +875,177 @@ window.exportCSV = () => {
   a.click();
 };
 </script>
+<!-- Chart.js for Dashboard -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script>
+Chart.register(ChartDataLabels);
+// ── Dashboard ──
+const VOL_COLORS = ['#f0b429','#5ab3f0','#3ecf8e','#e8607a','#9b5de5','#eb6834','#1baf7a','#eda100'];
+let _dHour=null,_dVol=null,_dSize=null;
+
+function renderDashboard() {
+  const ents = window._dashEntries || [];
+
+  // KPIs — always update regardless of data
+  const families  = ents.length;
+  const headcount = ents.reduce((a,e)=>a+(e.count||0),0);
+  const ooc       = ents.filter(e=>(e.city||'').toLowerCase()!=='madurai');
+  const nb        = ents.filter(e=>e.churchType==='Non-Believers');
+  document.getElementById('d-families').textContent  = families.toLocaleString('en-IN');
+  document.getElementById('d-headcount').textContent = headcount.toLocaleString('en-IN');
+  document.getElementById('d-ooc').textContent       = ooc.length;
+  document.getElementById('d-nb').textContent        = nb.length;
+
+  // Non-chart sections (no canvas needed)
+  renderDashAreas(ents);
+  renderDashNB(nb);
+  renderDashKG(ents);
+  renderDashOOC(ooc);
+
+  // Charts need canvas to have real dimensions — use rAF
+  requestAnimationFrame(()=>renderDashCharts(ents));
+}
+
+function renderDashAreas(ents) {
+  const madurai = ents.filter(e=>(e.city||'').toLowerCase()==='madurai');
+  const areaMap={};
+  madurai.forEach(e=>{const a=(e.area||'').trim();if(a)areaMap[a]=(areaMap[a]||0)+(e.count||0);});
+  const top=Object.entries(areaMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxV=top[0]?.[1]||1;
+  document.getElementById('d-areas').innerHTML = top.length
+    ? top.map(([n,c])=>`<div class="dash-area-row"><span class="dash-area-name">${n}</span><div class="dash-area-bar-wrap"><div class="dash-area-bar-fill" style="width:${Math.round(c/maxV*100)}%"></div></div><span class="dash-area-count">${c}</span></div>`).join('')
+    : '<div style="color:var(--faint);font-size:13px;">No Madurai entries yet.</div>';
+}
+
+function renderDashNB(nb) {
+  const hc=nb.reduce((a,e)=>a+(e.count||0),0);
+  document.getElementById('d-nb-title').textContent=`Non-believers — ${nb.length} families, ${hc} people`;
+  const areas=[...new Set(nb.map(e=>(e.area||'').trim()).filter(Boolean))];
+  document.getElementById('d-nb-areas').innerHTML=areas.length
+    ? areas.map(a=>`<span class="dash-tag-nb">${a}</span>`).join('')
+    : '<span style="color:var(--faint);font-size:12px;">None yet.</span>';
+}
+
+function renderDashKG(ents) {
+  const kg=ents.filter(e=>e.church==='Kings Generation'&&(e.city||'').toLowerCase()!=='madurai');
+  document.getElementById('d-kg-title').textContent=`KG visitors from other branches — ${kg.length} families`;
+  const cities={};kg.forEach(e=>{const c=(e.city||'Other').trim();cities[c]=(cities[c]||0)+1;});
+  const sorted=Object.entries(cities).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('d-kg-areas').innerHTML=sorted.length
+    ? sorted.map(([c,n])=>`<span class="dash-tag-kg">${c} — ${n} fam</span>`).join('')
+    : '<span style="color:var(--faint);font-size:12px;">None yet.</span>';
+}
+
+function renderDashOOC(ooc) {
+  const hc=ooc.reduce((a,e)=>a+(e.count||0),0);
+  document.getElementById('d-ooc-title').textContent=`Out-of-city visitors — ${ooc.length} families, ${hc} people`;
+  const cities={};ooc.forEach(e=>{const c=(e.city||'Unknown').trim();cities[c]=(cities[c]||0)+1;});
+  const sorted=Object.entries(cities).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('d-ooc-cities').innerHTML=sorted.length
+    ? sorted.map(([c,n])=>`<span class="dash-city-pill">${c} — ${n} famil${n===1?'y':'ies'}</span>`).join('')
+    : '<span style="color:var(--faint);font-size:12px;">None yet.</span>';
+}
+
+function renderDashCharts(ents) {
+  if(typeof Chart==='undefined') return; // CDN not loaded yet
+
+  const isDark = !document.body.classList.contains('light-mode');
+  const gridCol = isDark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)';
+  const tickCol = isDark?'#8891ab':'#5a6080';
+  const labelCol = isDark?'#8891ab':'#5a6080';
+
+  const barLabel = {
+    anchor:'end', align:'end', offset:2,
+    color: labelCol,
+    font:{size:11,weight:'600'},
+    formatter: v => v>0?v:''
+  };
+
+  // Hour chart
+  const hourMap={};
+  ents.forEach(e=>{
+    if(!e.createdAt) return;
+    const d = e.createdAt instanceof Date ? e.createdAt : new Date(e.createdAt);
+    if(isNaN(d)) return;
+    const h=d.getHours();
+    hourMap[h]=(hourMap[h]||0)+1;
+  });
+  const hKeys=Object.keys(hourMap).map(Number).sort((a,b)=>a-b);
+  const hLabels=hKeys.map(h=>{const ap=h>=12?'pm':'am';const h12=h>12?h-12:(h===0?12:h);return h12+' '+ap;});
+  const hData=hKeys.map(h=>hourMap[h]);
+
+  const hCanvas=document.getElementById('d-hourChart');
+  if(_dHour){_dHour.destroy();_dHour=null;}
+  if(hCanvas){
+    _dHour=new Chart(hCanvas,{
+      type:'bar',
+      data:{labels:hLabels,datasets:[{data:hData,backgroundColor:'#5ab3f0',borderRadius:4,barThickness:28}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        layout:{padding:{top:22}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' families'}},datalabels:barLabel},
+        scales:{
+          x:{ticks:{color:tickCol,font:{size:12}},grid:{display:false},border:{display:false}},
+          y:{ticks:{color:tickCol,font:{size:11}},grid:{color:gridCol},border:{display:false}}
+        }
+      }
+    });
+  }
+
+  // Volunteer doughnut
+  const volMap={};
+  ents.forEach(e=>{if(e.registeredBy)volMap[e.registeredBy]=(volMap[e.registeredBy]||0)+1;});
+  const volEntries=Object.entries(volMap).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('d-vol-legend').innerHTML=volEntries.map((v,i)=>
+    `<div class="dash-vol-row"><div class="dash-vol-dot" style="background:${VOL_COLORS[i%VOL_COLORS.length]}"></div><div class="dash-vol-name">${v[0]}</div><div class="dash-vol-count">${v[1]}</div></div>`
+  ).join('');
+  const vCanvas=document.getElementById('d-volChart');
+  if(_dVol){_dVol.destroy();_dVol=null;}
+  if(vCanvas&&volEntries.length){
+    _dVol=new Chart(vCanvas,{
+      type:'doughnut',
+      data:{labels:volEntries.map(v=>v[0]),datasets:[{data:volEntries.map(v=>v[1]),backgroundColor:VOL_COLORS.slice(0,volEntries.length),borderWidth:0,hoverOffset:4}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:'60%',
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' families'}},datalabels:{display:false}}
+      }
+    });
+  }
+
+  // Family size bar
+  const sizeMap={};
+  ents.forEach(e=>{const s=Math.min(e.count||1,9);const k=s===9?'9+':String(s);sizeMap[k]=(sizeMap[k]||0)+1;});
+  const sLabels=['1','2','3','4','5','6','7','8','9+'];
+  const sData=sLabels.map(l=>sizeMap[l]||0);
+  const sCanvas=document.getElementById('d-sizeChart');
+  if(_dSize){_dSize.destroy();_dSize=null;}
+  if(sCanvas){
+    _dSize=new Chart(sCanvas,{
+      type:'bar',
+      data:{labels:sLabels,datasets:[{label:'Families',data:sData,backgroundColor:'#3ecf8e',borderRadius:4,barThickness:24}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        layout:{padding:{top:22}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' families'}},datalabels:barLabel},
+        scales:{
+          x:{title:{display:true,text:'Members per family',color:labelCol,font:{size:11}},ticks:{color:tickCol,font:{size:12}},grid:{display:false},border:{display:false}},
+          y:{ticks:{color:tickCol,font:{size:11}},grid:{color:gridCol},border:{display:false}}
+        }
+      }
+    });
+  }
+}
+
+window.renderDashboard = renderDashboard;
+
+window.notifyDashboard = function(ents) {
+  window._dashEntries = ents;
+  const tab = document.getElementById('tab-dash');
+  if (tab && tab.style.display !== 'none') renderDashboard();
+};
+</script>
+
 <!-- Theme Toggle -->
 <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
 <script>
